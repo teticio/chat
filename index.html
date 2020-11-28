@@ -1,0 +1,84 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <script>
+        var ws;
+
+        function createRoom() {
+            var name = document.getElementById('name').value;
+
+            if (!name) {
+                name = 'anon';
+            }
+            window.location.search += 'name=' + name +'&room=' + Math.floor(Math.random() * 10000).toString();
+        }
+
+        function joinRoom() {
+            var name = document.getElementById('name').value;
+            var room = document.getElementById('room').value;
+
+            if (!name) {
+                name = 'anon';
+            }
+            window.location.search += 'name=' + name +'&room=' + room;
+        }
+
+        function sendMessage() {
+            var message = document.getElementById('message').value;
+
+            ws.send(message);
+            document.getElementById('message').value = '';
+        }
+    </script>
+</head>
+
+<body>
+    <div id="lobby">
+        <input type="text" id="name" placeholder="Name">
+        <button type="button" onclick="createRoom();">Create room</button>
+        <br><br>
+        <input type="number" id="room" placeholder="Room number">
+        <button type="button" onclick="joinRoom();">Join room</button>
+    </div>
+
+    <div id="chat">
+        <input type="text" id="message" onchange="sendMessage()" placeholder="Message">
+        <br><br>
+        <span id="messages"></span>
+    </div>
+
+    <script>
+        (function() {
+            var url_string = window.location.href;
+            var url = new URL(url_string);
+            var room = url.searchParams.get('room');
+            var name = url.searchParams.get('name');
+        
+            if (room) {
+                document.getElementById('chat').style.display = "block";
+                document.getElementById('lobby').style.display = "none";
+        
+                if ("WebSocket" in window) {
+                    ws = new WebSocket('wss://deej-ai.online/chat');
+        
+                    ws.onmessage = function(evt) {
+                        document.getElementById('messages').innerHTML += evt.data + '<br>';
+                    };
+        
+                    ws.onopen = function(evt) {
+                        var obj = {};
+
+                        obj.name = name;
+                        obj.room = room;
+                        ws.send(JSON.stringify(obj));
+                    };
+                }
+            } else {
+                document.getElementById('chat').style.display = "none";
+                document.getElementById('lobby').style.display = "block";
+            }
+        })();
+    </script>
+</body>
+</html>

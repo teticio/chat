@@ -1,0 +1,23 @@
+<!DOCTYPE html>
+<html>
+<head>
+<script>
+    if ("WebSocket" in window) {
+        var protocol;
+
+        if (window.location.protocol == "https:") {
+            protocol = "wss:";
+        } else {
+            protocol = "ws:";
+        }
+        var ws = new WebSocket(protocol + window.location.hostname + ":" + window.location.port + "/");
+        ws.onopen = function(evt) { 
+            ws.send('rob');
+            ws.send('hello there');
+        };
+    }
+</script>
+</head>
+<body>
+</body>
+</html>
