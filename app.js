@@ -1,11 +1,3 @@
-/*
-TODO
-- on leaving room, remove client from room NOT WORKING
-- if room empty, delete room NOT WORKING
-- run node on apache
-- add audio messages
-*/
-
 const http = require('http');
 const ws = require('websocket').server;
 const fs = require('fs');
