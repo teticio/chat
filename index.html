@@ -23,7 +23,9 @@
             if (!name) {
                 name = 'anon';
             }
-            window.location.search += 'name=' + name +'&room=' + room;
+            if (room != '') {
+                window.location.search += 'name=' + name +'&room=' + room;
+            }
         }
 
         // send a text message
@@ -55,12 +57,18 @@
 
                 // set a 60 second timeout, just in case
                 setTimeout(() => {
-                    mediaRecorder.stop();
+                    // avoid error if already stopped
+                    try {
+                        mediaRecorder.stop();
+                    } catch (e) {}
                 }, 1000 * 60);
 
                 // stop recording once the user stops pressing the button
                 document.getElementById('speak').addEventListener("mouseup", () => {
-                    mediaRecorder.stop();
+                    // avoid error if already stopped
+                    try {
+                        mediaRecorder.stop();
+                    } catch (e) {}
                 });
             });
         }
@@ -85,6 +93,7 @@
     </div>
 
     <script>
+        // this is run once the page is ready and all the elements are available
         (function() {
             // get the room and name info from the URL
             var url_string = window.location.href;
@@ -92,13 +101,14 @@
             var room = url.searchParams.get('room');
             var name = url.searchParams.get('name');
 
-            // set title of webpage
-            document.title = name + ' is in chat room ' + room;
         
             if (room) {
                 // if we are already in a room, show the chat
                 document.getElementById('chat').style.display = "block";
                 document.getElementById('lobby').style.display = "none";
+
+                // set title of webpage
+                document.title = name + ' is in chat room ' + room;
 
                 if ("WebSocket" in window) {
                     // connect to the websocket
