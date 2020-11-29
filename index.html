@@ -91,6 +91,9 @@
             var url = new URL(url_string);
             var room = url.searchParams.get('room');
             var name = url.searchParams.get('name');
+
+            // set title of webpage
+            document.title = name + ' is in chat room ' + room;
         
             if (room) {
                 // if we are already in a room, show the chat
@@ -100,6 +103,8 @@
                 if ("WebSocket" in window) {
                     // connect to the websocket
                     ws = new WebSocket('wss://deej-ai.online/chat');
+
+                    // set up handler for messages
                     ws.onmessage = function(evt) {
                         // if it is audio, then play it
                         if (evt.data instanceof Blob) {
