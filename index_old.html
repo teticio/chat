@@ -2,67 +2,33 @@
 <html>
 
 <head>
-    <script src="https://cdn.rawgit.com/mattdiamond/Recorderjs/08e7abd9/dist/recorder.js"></script>
-
     <script>
         var ws;
 
-        // create a new room with a random number
         function createRoom() {
             var name = document.getElementById('name').value;
+
             if (!name) {
                 name = 'anon';
             }
             window.location.search += 'name=' + name +'&room=' + Math.floor(Math.random() * 10000).toString();
         }
 
-        // join an existing room (or create one with a specific number)
         function joinRoom() {
             var name = document.getElementById('name').value;
             var room = document.getElementById('room').value;
+
             if (!name) {
                 name = 'anon';
             }
             window.location.search += 'name=' + name +'&room=' + room;
         }
 
-        // send a text message
         function sendMessage() {
             var message = document.getElementById('message').value;
+
             ws.send(message);
             document.getElementById('message').value = '';
-        }
-
-        // send a voice message
-        function sendVoiceMessage() {
-            navigator.mediaDevices.getUserMedia({ audio: true })
-            .then(stream => {
-                // start recording
-                const mediaRecorder = new MediaRecorder(stream);
-                mediaRecorder.start();
-
-                // store the chunks as they arrive
-                const audioChunks = [];
-                mediaRecorder.addEventListener("dataavailable", event => {
-                    audioChunks.push(event.data);
-                });
-
-                // when the recording stops, send the audio message via the websocket
-                mediaRecorder.addEventListener("stop", () => {
-                    const audioBlob = new Blob(audioChunks);
-                    ws.send(audioBlob);
-                });
-
-                // set a 60 second timeout, just in case
-                setTimeout(() => {
-                    mediaRecorder.stop();
-                }, 1000 * 60);
-
-                // stop recording once the user stops pressing the button
-                document.getElementById('speak').addEventListener("mouseup", () => {
-                    mediaRecorder.stop();
-                });
-            });
         }
     </script>
 </head>
@@ -79,50 +45,35 @@
     <div id="chat">
         <input type="text" id="message" onchange="sendMessage()" placeholder="Message">
         <br><br>
-        <button type="button" id="speak" onmousedown="sendVoiceMessage();">Speak</button>
-        <br><br>
         <span id="messages"></span>
     </div>
 
     <script>
         (function() {
-            // get the room and name info from the URL
             var url_string = window.location.href;
             var url = new URL(url_string);
             var room = url.searchParams.get('room');
             var name = url.searchParams.get('name');
         
             if (room) {
-                // if we are already in a room, show the chat
                 document.getElementById('chat').style.display = "block";
                 document.getElementById('lobby').style.display = "none";
-
+        
                 if ("WebSocket" in window) {
-                    // connect to the websocket
                     ws = new WebSocket('wss://deej-ai.online/chat');
+        
                     ws.onmessage = function(evt) {
-                        // if it is audio, then play it
-                        if (evt.data instanceof Blob) {
-                            const audioUrl = URL.createObjectURL(evt.data);
-                            const audio = new Audio(audioUrl);
-                            audio.play();
-
-                        // otherwise display the text message
-                        } else {
-                            document.getElementById('messages').innerHTML += evt.data + '<br>';
-                        }
+                        document.getElementById('messages').innerHTML += evt.data + '<br>';
                     };
         
-                    // send room and name info
                     ws.onopen = function(evt) {
                         var obj = {};
+
                         obj.name = name;
                         obj.room = room;
                         ws.send(JSON.stringify(obj));
                     };
                 }
-
-            // show the lobby
             } else {
                 document.getElementById('chat').style.display = "none";
                 document.getElementById('lobby').style.display = "block";
