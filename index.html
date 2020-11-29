@@ -37,40 +37,48 @@
 
         // send a voice message
         function sendVoiceMessage() {
-            navigator.mediaDevices.getUserMedia({ audio: true })
-            .then(stream => {
-                // start recording
-                const mediaRecorder = new MediaRecorder(stream);
-                mediaRecorder.start();
+            try {
+                navigator.mediaDevices.getUserMedia({ audio: true })
+                .then(stream => {
+                    // start recording
+                    const mediaRecorder = new MediaRecorder(stream);
+                    mediaRecorder.start();
 
-                // store the chunks as they arrive
-                const audioChunks = [];
-                mediaRecorder.addEventListener("dataavailable", event => {
-                    audioChunks.push(event.data);
+                    // store the chunks as they arrive
+                    const audioChunks = [];
+                    mediaRecorder.addEventListener("dataavailable", event => {
+                        audioChunks.push(event.data);
+                    });
+
+                    // when the recording stops, send the audio message via the websocket
+                    mediaRecorder.addEventListener("stop", () => {
+                        const audioBlob = new Blob(audioChunks);
+                        ws.send(audioBlob);
+                    });
+
+                    function stopRecording() {
+                        // avoid error if already stopped
+                        try {
+                            mediaRecorder.stop();
+                        } catch (e) {}
+
+                        // put the button back to its original state
+                        document.getElementById('speak').setAttribute('onclick', 'sendVoiceMessage();');
+                        document.getElementById('speak').textContent = 'Speak';
+                    }
+
+                    // set a 60 second timeout, just in case
+                    setTimeout(stopRecording, 1000 * 60);
+
+                    // stop recording if user presses button again
+                    document.getElementById('speak').onclick = stopRecording;
+                    document.getElementById('speak').textContent = 'Stop';
                 });
 
-                // when the recording stops, send the audio message via the websocket
-                mediaRecorder.addEventListener("stop", () => {
-                    const audioBlob = new Blob(audioChunks);
-                    ws.send(audioBlob);
-                });
-
-                // set a 60 second timeout, just in case
-                setTimeout(() => {
-                    // avoid error if already stopped
-                    try {
-                        mediaRecorder.stop();
-                    } catch (e) {}
-                }, 1000 * 60);
-
-                // stop recording once the user stops pressing the button
-                document.getElementById('speak').addEventListener("mouseup", () => {
-                    // avoid error if already stopped
-                    try {
-                        mediaRecorder.stop();
-                    } catch (e) {}
-                });
-            });
+            } catch (e) {
+                // unable to record audio
+                document.getElementById('messages').innerHTML += '[Problem recording audio: ' + e.message + ']<br>';
+            }
         }
     </script>
 </head>
@@ -87,7 +95,7 @@
     <div id="chat">
         <input type="text" id="message" onchange="sendMessage()" placeholder="Message">
         <br><br>
-        <button type="button" id="speak" onmousedown="sendVoiceMessage();">Speak</button>
+        <button type="button" id="speak" onclick="sendVoiceMessage();">Speak</button>
         <br><br>
         <span id="messages"></span>
     </div>
@@ -100,7 +108,6 @@
             var url = new URL(url_string);
             var room = url.searchParams.get('room');
             var name = url.searchParams.get('name');
-
         
             if (room) {
                 // if we are already in a room, show the chat
@@ -121,6 +128,7 @@
                             const audioUrl = URL.createObjectURL(evt.data);
                             const audio = new Audio(audioUrl);
                             audio.play();
+                            ws.send('[played audio]');
 
                         // otherwise display the text message
                         } else {
