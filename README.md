@@ -21,5 +21,5 @@ ProxyPass "/chat" "http://localhost:3001/"
 ProxyPassReverse "/chat" "http://localhost:3001/"
 RewriteCond %{HTTP:Connection} Upgrade [NC]
 RewriteCond %{HTTP:Upgrade} websocket [NC]
-RewriteRule /chat(.*) ws://localhost:3001/$1 [P,L]"""
+RewriteRule /chat(.*) ws://localhost:3001/$1 [P,L]
 ```
