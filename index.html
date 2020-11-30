@@ -116,12 +116,13 @@
 
                     // set up handler for messages
                     ws.onmessage = function(evt) {
-                        // if it is audio, then play it
+                        // if it is audio, then add audio player
                         if (evt.data instanceof Blob) {
                             const audioUrl = URL.createObjectURL(evt.data);
-                            const audio = new Audio(audioUrl);
-                            audio.play();
-                            ws.send('[played audio]');
+                            document.getElementById('messages').innerHTML += '<audio controls src=' + audioUrl + '></audio><br>';
+                            const audios = document.getElementsByTagName('audio');
+                            // this will only play if user has interacted with the page already (and not in any case on the iPhone)
+                            audios[audios.length - 1].play();
 
                         // otherwise display the text message
                         } else {
