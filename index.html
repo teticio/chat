@@ -35,48 +35,42 @@
 
         // send a voice message
         function sendVoiceMessage() {
-            try {
-                navigator.mediaDevices.getUserMedia({ audio: true })
-                .then(stream => {
-                    // start recording
-                    const mediaRecorder = new MediaRecorder(stream);
-                    mediaRecorder.start();
+            navigator.mediaDevices.getUserMedia({ audio: true })
+            .then(stream => {
+                // start recording
+                const mediaRecorder = new MediaRecorder(stream);
+                mediaRecorder.start();
 
-                    // store the chunks as they arrive
-                    const audioChunks = [];
-                    mediaRecorder.addEventListener("dataavailable", event => {
-                        audioChunks.push(event.data);
-                    });
-
-                    // when the recording stops, send the audio message via the websocket
-                    mediaRecorder.addEventListener("stop", () => {
-                        const audioBlob = new Blob(audioChunks);
-                        ws.send(audioBlob);
-                    });
-
-                    function stopRecording() {
-                        // avoid error if already stopped
-                        try {
-                            mediaRecorder.stop();
-                        } catch (e) {}
-
-                        // put the button back to its original state
-                        document.getElementById('speak').setAttribute('onclick', 'sendVoiceMessage();');
-                        document.getElementById('speak').textContent = 'Speak';
-                    }
-
-                    // set a 60 second timeout, just in case
-                    setTimeout(stopRecording, 1000 * 60);
-
-                    // stop recording if user presses button again
-                    document.getElementById('speak').onclick = stopRecording;
-                    document.getElementById('speak').textContent = 'Stop';
+                // store the chunks as they arrive
+                const audioChunks = [];
+                mediaRecorder.addEventListener("dataavailable", event => {
+                    audioChunks.push(event.data);
                 });
 
-            } catch (e) {
-                // unable to record audio
-                document.getElementById('messages').innerHTML += '[Problem recording audio: ' + e.message + ']<br>';
-            }
+                // when the recording stops, send the audio message via the websocket
+                mediaRecorder.addEventListener("stop", () => {
+                    const audioBlob = new Blob(audioChunks);
+                    ws.send(audioBlob);
+                });
+
+                function stopRecording() {
+                    // avoid error if already stopped
+                    try {
+                        mediaRecorder.stop();
+                    } catch (e) {}
+
+                    // put the button back to its original state
+                    document.getElementById('speak').setAttribute('onclick', 'sendVoiceMessage();');
+                    document.getElementById('speak').textContent = 'Speak';
+                }
+
+                // set a 60 second timeout, just in case
+                setTimeout(stopRecording, 1000 * 60);
+
+                // stop recording if user presses button again
+                document.getElementById('speak').onclick = stopRecording;
+                document.getElementById('speak').textContent = 'Stop';
+            });
         }
     </script>
 </head>
