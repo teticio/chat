@@ -30,6 +30,7 @@ wss.on('request', function(req) {
                 msg = JSON.parse(message.utf8Data)
                 userName = msg.name;
                 room = msg.room;
+                console.log(userName + " in room " + room);
 
                 // if this is new rooom, then create it
                 if (!(room in rooms)) {
