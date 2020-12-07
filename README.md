@@ -23,3 +23,5 @@ RewriteCond %{HTTP:Connection} Upgrade [NC]
 RewriteCond %{HTTP:Upgrade} websocket [NC]
 RewriteRule /chat(.*) ws://localhost:3001/$1 [P,L]
 ```
+
+PS: I have updated it to be deployable out of the box on [Heroku](https://heroku.com).
