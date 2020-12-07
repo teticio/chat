@@ -1,34 +1,29 @@
-const http = require('http');
-const ws = require('websocket').server;
-const fs = require('fs');
+const express = require('express');
+const { Server } = require('ws');
 const PORT = process.env.PORT || 3001
 
-// set up HTTP server and serve index.html
-const httpServer = http.createServer(function (req, res) {
-    res.writeHead(200, {'Content-Type': 'text/html'});
-    res.end(fs.readFileSync('index.html'));
-    console.log('Listening on port ' + PORT);
-}).listen(PORT);
+const server = express()
+  .use((req, res) => res.sendFile('/index.html', { root: __dirname }))
+  .listen(PORT, () => console.log(`Listening on ${PORT}`));
 
 // set up websocket server
-const wss = new ws({httpServer: httpServer});
+const wss = new Server({ server });
 
 // keep track of all the connections and which rooms they are in
 var clients = [];
 var rooms = {};
 
-wss.on('request', function(req) {
-    const connection = req.accept(null, req.origin);
-    var index = clients.push(connection) - 1;
+wss.on('connection', (ws) => {
+    var index = clients.push(ws) - 1;
     var userName = false;
     var room = false;
 
-    connection.on('message', function(message) {
+    ws.on('message', (message) => {
         // handle text message
-        if (message.type == 'utf8') {
+        if (typeof(message) == 'string') {
             // if this is the first message, then it contains room and name info
             if (userName === false) {
-                msg = JSON.parse(message.utf8Data)
+                msg = JSON.parse(message)
                 userName = msg.name;
                 room = msg.room;
                 console.log(userName + ' in room ' + room);
@@ -43,28 +38,28 @@ wss.on('request', function(req) {
                 // tell all the others in the room that this person has joined
                 for (client in rooms[room]) {
                     if (rooms[room][client] != index) {
-                        clients[rooms[room][client]].sendUTF(userName + ' has joined the room');
+                        clients[rooms[room][client]].send(userName + ' has joined the room');
                     }
                 }
 
             } else {
                 // broadcast text message to everone in the room (including sender)
                 for (client in rooms[room]) {
-                    clients[rooms[room][client]].sendUTF(userName + ': ' + message.utf8Data);
+                    clients[rooms[room][client]].send(userName + ': ' + message);
                 }
             }
-            
+
         // send audio data to everyone else
-        } else if (message.type === 'binary') {
+        } else if ('buffer' in message) {
             for (client in rooms[room]) {
                 if (rooms[room][client] != index) {
-                    clients[rooms[room][client]].sendBytes(message.binaryData);
+                    clients[rooms[room][client]].send(message.buffer);
                 }
             }
         }
     });
-        
-    connection.on('close', function(connection) {
+
+    ws.on('close', () => {
         // tell all the others in the room that this person has left
         for (client in rooms[room]) {
             if (rooms[room][client] != index) {
@@ -81,7 +76,7 @@ wss.on('request', function(req) {
         }
 
         // if the room is empty then delete it
-        if (rooms[room].length == 0) {
+        if (rooms[room] && rooms[room].length == 0) {
             delete rooms[room];
         }
 
