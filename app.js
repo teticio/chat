@@ -1,12 +1,13 @@
 const http = require('http');
 const ws = require('websocket').server;
 const fs = require('fs');
+const PORT = process.env.PORT || 3001
 
 // set up HTTP server and serve index.html
 const httpServer = http.createServer(function (req, res) {
     res.writeHead(200, {'Content-Type': 'text/html'});
     res.end(fs.readFileSync('index.html'));
-}).listen(3001);
+}).listen(PORT);
 
 // set up websocket server
 const wss = new ws({httpServer: httpServer});
