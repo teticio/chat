@@ -26,7 +26,6 @@ wss.on('connection', (ws) => {
                 msg = JSON.parse(message)
                 userName = msg.name;
                 room = msg.room;
-                console.log(userName + ' in room ' + room);
 
                 // if this is new rooom, then create it
                 if (!(room in rooms)) {
@@ -53,7 +52,7 @@ wss.on('connection', (ws) => {
         } else if ('buffer' in message) {
             for (client in rooms[room]) {
                 if (rooms[room][client] != index) {
-                    clients[rooms[room][client]].send(message.buffer);
+                    clients[rooms[room][client]].send(message);
                 }
             }
         }
@@ -63,7 +62,7 @@ wss.on('connection', (ws) => {
         // tell all the others in the room that this person has left
         for (client in rooms[room]) {
             if (rooms[room][client] != index) {
-                clients[rooms[room][client]].sendUTF(userName + ' has left the room');
+                clients[rooms[room][client]].send(userName + ' has left the room');
             }
         }
 

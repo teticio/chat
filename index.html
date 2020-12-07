@@ -115,7 +115,7 @@
                     ws = new WebSocket('wss://deej-ai.online/chat');
 
                     // set up handler for messages
-                    ws.onmessage = function(evt) {
+                    ws.onmessage = (evt) => {
                         // if it is audio, then add audio player
                         if (evt.data instanceof Blob) {
                             const audioUrl = URL.createObjectURL(evt.data);
@@ -131,7 +131,7 @@
                     };
         
                     // send room and name info
-                    ws.onopen = function(evt) {
+                    ws.onopen = (evt) => {
                         var obj = {};
                         obj.name = name;
                         obj.room = room;
