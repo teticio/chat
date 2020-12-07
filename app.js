@@ -7,6 +7,7 @@ const PORT = process.env.PORT || 3001
 const httpServer = http.createServer(function (req, res) {
     res.writeHead(200, {'Content-Type': 'text/html'});
     res.end(fs.readFileSync('index.html'));
+    console.log('Listening on port ' + PORT);
 }).listen(PORT);
 
 // set up websocket server
@@ -30,7 +31,7 @@ wss.on('request', function(req) {
                 msg = JSON.parse(message.utf8Data)
                 userName = msg.name;
                 room = msg.room;
-                console.log(userName + " in room " + room);
+                console.log(userName + ' in room ' + room);
 
                 // if this is new rooom, then create it
                 if (!(room in rooms)) {
