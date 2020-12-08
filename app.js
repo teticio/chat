@@ -48,8 +48,8 @@ wss.on('connection', (ws) => {
                 }
             }
 
-        // send audio data to everyone else
-        } else if ('buffer' in message) {
+        // send binary (audio) data to everyone else
+        } else {
             for (client in rooms[room]) {
                 if (rooms[room][client] != index) {
                     clients[rooms[room][client]].send(message);
