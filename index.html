@@ -112,7 +112,12 @@
 
                 if ("WebSocket" in window) {
                     // connect to the websocket
-                    ws = new WebSocket('wss://deej-ai.online/chat');
+                    if (window.location.protocol == "https:") {
+                        protocol = "wss:";
+                    } else {
+                        protocol = "ws:";
+                    }
+                    ws = new WebSocket(protocol + window.location.hostname + ":" + window.location.port + "/");
 
                     // set up handler for messages
                     ws.onmessage = (evt) => {
