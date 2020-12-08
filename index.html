@@ -117,7 +117,7 @@
                     } else {
                         protocol = "ws:";
                     }
-                    ws = new WebSocket(protocol + window.location.hostname + ":" + window.location.port + "/");
+                    ws = new WebSocket(protocol + window.location.hostname + ":" + window.location.port + window.location.pathname);
 
                     // set up handler for messages
                     ws.onmessage = (evt) => {
