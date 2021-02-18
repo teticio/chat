@@ -112,12 +112,9 @@
 
                 if ("WebSocket" in window) {
                     // connect to the websocket
-                    if (window.location.protocol == "https:") {
-                        protocol = "wss:";
-                    } else {
-                        protocol = "ws:";
-                    }
-                    ws = new WebSocket(protocol + window.location.hostname + ":" + window.location.port + window.location.pathname);
+                    const protocol = windows.location.protocol == "https:"? "wss:" : "ws:";
+                    const port = windows.location.port != ""? windows.location.port : 80;
+                    ws = new WebSocket(protocol + window.location.hostname + ":" + port + window.location.pathname);
 
                     // set up handler for messages
                     ws.onmessage = (evt) => {
