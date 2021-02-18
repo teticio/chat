@@ -97,10 +97,10 @@
         // this is run once the page is ready and all the elements are available
         (function() {
             // get the room and name info from the URL
-            var url_string = window.location.href;
-            var url = new URL(url_string);
-            var room = url.searchParams.get('room');
-            var name = url.searchParams.get('name');
+            const url_string = window.location.href;
+            const url = new URL(url_string);
+            const room = url.searchParams.get('room');
+            const name = url.searchParams.get('name');
         
             if (room) {
                 // if we are already in a room, show the chat
@@ -112,8 +112,8 @@
 
                 if ("WebSocket" in window) {
                     // connect to the websocket
-                    const protocol = windows.location.protocol == "https:"? "wss:" : "ws:";
-                    const port = windows.location.port != ""? windows.location.port : 80;
+                    const protocol = window.location.protocol == "https:"? "wss:" : "ws:";
+                    const port = window.location.port != ""? window.location.port : 80;
                     ws = new WebSocket(protocol + window.location.hostname + ":" + port + window.location.pathname);
 
                     // set up handler for messages
