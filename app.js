@@ -4,7 +4,7 @@ const PORT = process.env.PORT || 3001
 
 const server = express()
   .use((req, res) => res.sendFile('/index.html', { root: __dirname }))
-  .listen(PORT, () => console.log(`NOW Listening on ${PORT}`));
+  .listen(PORT, () => console.log(`Listening on ${PORT}`));
 
 // set up websocket server
 const wss = new Server({ server });
