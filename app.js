@@ -1,6 +1,6 @@
 const express = require('express');
 const { Server } = require('ws');
-const PORT = process.env.PORT || 3001
+const PORT = process.env.PORT || process.env.DB_PORT || 3001
 
 const server = express()
   .use((req, res) => res.sendFile('/index.html', { root: __dirname }))
